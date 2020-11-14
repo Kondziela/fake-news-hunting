@@ -1,3 +1,5 @@
+import {TwitterModel} from "./TwitterModel";
+
 export interface FakeHunterResponse {
     "total": number;
     "current_page": number;
@@ -32,4 +34,15 @@ export interface FakeHunterResponse {
         "verdict": boolean;
         "verified_by_expert": boolean;
     }>
+}
+
+export class FakeNewsModel {
+    verdict: boolean;
+    title: string;
+    text: string;
+    url: string;
+    id: string;
+    domain: string;
+    twitterId?: string;
+    twitterDetails: TwitterModel
 }
