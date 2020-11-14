@@ -1,0 +1,23 @@
+{
+  "name": "fake-news-hunting",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kondziela/fake-news-hunting.git"
+  },
+  "keywords": [
+    "Fake",
+    "News"
+  ],
+  "author": "AKO DWE\u001b[D\u001b[D\u001b[D&& DWE",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Kondziela/fake-news-hunting/issues"
+  },
+  "homepage": "https://github.com/Kondziela/fake-news-hunting#readme"
+}
