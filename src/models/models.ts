@@ -44,5 +44,12 @@ export class FakeNewsModel {
     id: string;
     domain: string;
     twitterId?: string;
-    twitterDetails: TwitterModel
+    twitterDetails: TwitterModel;
+    morfeuszWords?: Array<string>;
+}
+
+export class MorfeuszResponse {
+    originalValue: string;
+    coreValue: string;
+    type: string;
 }

@@ -20,4 +20,8 @@ export class Tools {
             else console.log('Saved CSV');
         })
     }
+
+    public readFile(fileName: string, callbackFn) {
+        fs.readFile(fileName, (err, data) => callbackFn(data));
+    }
 }
