@@ -29,6 +29,8 @@
     "path": "^0.12.7",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
+    "sentiment": "^5.0.2",
+    "sentiment-polish": "^1.0.0",
     "ts-node": "^9.0.0",
     "twitter": "^1.7.1",
     "typescript": "^4.0.5"

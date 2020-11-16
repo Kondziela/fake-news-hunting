@@ -41,7 +41,9 @@ export class MorfeuszRequest {
     }
 
     public filterMorfeuszValues(morfeuszArray: Array<MorfeuszResponse>): Array<MorfeuszResponse> {
-        return morfeuszArray.filter(morfeusz => morfeusz.type.split(':').some(value => !this.filterValueArray.includes(value)));
+        return morfeuszArray.filter(morfeusz => {
+            return !morfeusz.type.split(':').some(value => this.filterValueArray.includes(value))
+        });
     }
 
 }

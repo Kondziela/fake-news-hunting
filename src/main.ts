@@ -3,10 +3,12 @@ import {TwitterRequest} from "./twitterRequest";
 import {Tools} from "./Tools";
 import {FakeNewsModel} from "./models/models";
 import {MorfeuszRequest} from "./morfeuszRequest";
+import {SentimentAnalyze} from "./sentimentAnalyze";
 
 const tools = new Tools();
 const twitter = new TwitterRequest();
 const morfeusz = new MorfeuszRequest();
+const sentiment= new SentimentAnalyze();
 
 // new Request().downloadAllFakeHistory()
 //     .then(results => {
@@ -32,22 +34,39 @@ const getTwittDetails = (data: FakeNewsModel): Promise<object> => {
     });
 }
 
-tools.readFile('fakeWithTwittsTexts.json', (buffer: Buffer) => {
-    const morfeuszAnalyze = JSON.parse(new String(buffer).toString()).filter(data => data.twitterDetails).map(data => analyzeMorfeusz(data));
+const queue = [];
 
-    Promise.all(morfeuszAnalyze)
-        .then(results => {
-            console.log(results.length);
-            tools.saveToJSON(JSON.stringify(results), 'fakeWithMorfeusz.json');
-        })
+tools.readFile('fakeWithTwittsTexts.json', (buffer: Buffer) => {
+    const morfeuszAnalyze = JSON.parse(new String(buffer).toString()).filter(data => data.twitterDetails).map(data => {
+        data.sentiment = sentiment.getSentimentPolish(data.twitterDetails);
+        return data;
+    });
+
+    morfeuszRequest(morfeuszAnalyze);
 });
+
+
+const morfeuszRequest = (data: Array<FakeNewsModel>) => {
+    const value = data.pop();
+    if (value) {
+        analyzeMorfeusz(value)
+            .then(result => {
+                queue.push(result);
+                console.log(`Processed: ${queue.length}, Left: ${data.length}`);
+                setTimeout(() => morfeuszRequest(data), 1000);
+            })
+    } else {
+        console.log(queue.length);
+        tools.saveToJSON(JSON.stringify(queue), 'fakeWithMorfeuszAndSentiment.json');
+    }
+};
 
 const analyzeMorfeusz = (data: FakeNewsModel): Promise<FakeNewsModel> => {
     return new Promise<FakeNewsModel>(resolve => {
         // @ts-ignore
         morfeusz.tagFromMorfeusz(data.twitterDetails)
         .then(result => {
-            data.morfeuszWords = morfeusz.filterMorfeuszValues(result).map(morfeusz => morfeusz.coreValue);
+            data.morfeuszWords = morfeusz.filterMorfeuszValues(result).map(morfeusz => morfeusz.coreValue.split(':')[0]);
             resolve(data);
         });
     });

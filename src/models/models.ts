@@ -46,6 +46,7 @@ export class FakeNewsModel {
     twitterId?: string;
     twitterDetails: TwitterModel;
     morfeuszWords?: Array<string>;
+    sentiment?: number;
 }
 
 export class MorfeuszResponse {
