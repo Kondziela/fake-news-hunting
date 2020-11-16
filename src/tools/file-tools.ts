@@ -22,6 +22,6 @@ export class FileTools {
     }
 
     public readFile(fileName: string, callbackFn) {
-        fs.readFile(fileName, (err, data) => callbackFn(data));
+        fs.readFile(fileName, (err, data) => callbackFn(JSON.parse(new String(data).toString())));
     }
 }

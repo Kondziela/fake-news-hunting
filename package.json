@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/start_scripts/download_data_and_start_analyze.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "get-data": "ts-node src/start_scripts/download_data_and_start_analyze.ts",
+    "run-sandbox": "ts-node src/analytics/sandbox.ts"
   },
   "repository": {
     "type": "git",
