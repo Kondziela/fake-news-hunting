@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as request from 'request-promise';
-import {FakeHunterResponse, FakeNewsModel} from "./models/models";
+import {FakeHunterResponse, FakeNewsModel} from "../models/models";
 
-export class Request {
+export class FakeHunterRequest {
 
     private numberOfPages: number = 50;
 
@@ -20,9 +20,8 @@ export class Request {
                     const results = bodies.flatMap(data => {
                         if (!!data) {
                             return data.results.map(d => { return {
-                                isFake: d.verdict,
+                                verdict: d.verdict,
                                 title: d.title,
-                                text: d.text.replace(/\n/g, ' '),
                                 url: d.url,
                                 domain: d.url.split('/')[2],
                                 twitterId: d.url.split('/').pop(),

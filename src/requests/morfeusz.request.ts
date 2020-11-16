@@ -1,5 +1,5 @@
 import * as request from 'request-promise';
-import {MorfeuszResponse} from "./models/models";
+import {MorfeuszResponse} from "../models/models";
 
 /**
  * Base on http://morfeusz.sgjp.pl/demo/
@@ -8,6 +8,7 @@ export class MorfeuszRequest {
 
     // http://nkjp.pl/poliqarp/help/plse2.html
     private filterValueArray: Array<string> = [
+        // types of vocabularies, that should be filtered out
         'prep',     // prep
         'conj',     // spójnik współrzędny
         'comp',     // spójnik podrzędny
@@ -18,6 +19,11 @@ export class MorfeuszRequest {
         'interp',   // interpunkcja
         // 'xxx',      // ciało obce
         // 'ign'       // forma nierozpoznana
+    ];
+    private filterOurWords: Array<string> = [
+        'https',
+        'http',
+        'www'
     ];
 
     private morfeuszURL: string = 'http://morfeusz.sgjp.pl/demo/_tag?text={{TEXT}}&dict=sgjp&aggl=strict&praet=composite&case_handling=100&whitespace=301&expand_tags=0';
@@ -41,9 +47,13 @@ export class MorfeuszRequest {
     }
 
     public filterMorfeuszValues(morfeuszArray: Array<MorfeuszResponse>): Array<MorfeuszResponse> {
-        return morfeuszArray.filter(morfeusz => {
-            return !morfeusz.type.split(':').some(value => this.filterValueArray.includes(value))
-        });
+        return morfeuszArray
+            // filter out unimportant types of vocabularies
+            .filter(morfeusz => {
+                return !morfeusz.type.split(':').some(value => this.filterValueArray.includes(value))
+            })
+            // filter out unimportant words
+            .filter(morfeusz => !this.filterOurWords.includes(morfeusz.coreValue));
     }
 
 }

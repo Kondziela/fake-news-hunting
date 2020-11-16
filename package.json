@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/main.ts",
+    "start": "ts-node src/start_scripts/download_data_and_start_analyze.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,7 +1,7 @@
 import * as fs from "fs";
-import {FakeNewsModel} from "./models/models";
+import {FakeNewsModel} from "../models/models";
 
-export class Tools {
+export class FileTools {
 
     public saveToJSON(result: string, name: string) {
         fs.writeFile(name, result,{encoding: 'utf8'}, (err) => {

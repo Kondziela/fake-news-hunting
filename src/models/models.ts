@@ -39,7 +39,6 @@ export interface FakeHunterResponse {
 export class FakeNewsModel {
     verdict: boolean;
     title: string;
-    text: string;
     url: string;
     id: string;
     domain: string;

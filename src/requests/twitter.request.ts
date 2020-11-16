@@ -1,6 +1,6 @@
-import {Conf} from "./Conf";
+import {Conf} from "../Conf";
 import * as Twitter from "twitter";
-import {TwitterModel} from "./models/TwitterModel";
+import {TwitterModel} from "../models/TwitterModel";
 
 export class TwitterRequest {
 

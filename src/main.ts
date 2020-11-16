@@ -1,80 +1,87 @@
-import { Request } from './request';
-import {TwitterRequest} from "./twitterRequest";
-import {Tools} from "./Tools";
 import {FakeNewsModel} from "./models/models";
-import {MorfeuszRequest} from "./morfeuszRequest";
-import {SentimentAnalyze} from "./sentimentAnalyze";
+import * as path from "path";
+import {FileTools} from "./tools/file-tools";
+import {FakeHunterRequest} from "./requests/fake-hunter.request";
+import {TwitterRequest} from "./requests/twitter.request";
+import {MorfeuszRequest} from "./requests/morfeusz.request";
+import {SentimentAnalyze} from "./tools/sentiment-analyze";
 
-const tools = new Tools();
-const twitter = new TwitterRequest();
-const morfeusz = new MorfeuszRequest();
-const sentiment= new SentimentAnalyze();
+export class Main {
 
-// new Request().downloadAllFakeHistory()
-//     .then(results => {
-//         console.log(`Downloaded ${results.length} records from Fake Hunter Page`);
-//         // tools.saveToCSV(results);
-//         // tools.saveToJSON(JSON.stringify(results));
-//         const twitterFakes = results.filter(result => result.domain.includes('twitter'));
-//         console.log(`Number of fakes related to Twitter: ${twitterFakes.length}`)
-//         Promise.all(twitterFakes.map(twitt => getTwittDetails(twitt)))
-//             .then(twitts => {
-//                 console.log('Downloaded details from Twitter');
-//                 tools.saveToJSON(JSON.stringify(twitts), 'fakeWithTwitts.json')
-//             })
-//     });
+    private tools: FileTools;
+    private fakeHunterRequest: FakeHunterRequest;
+    private twitterRequest: TwitterRequest;
+    private morfeuszRequest: MorfeuszRequest;
+    private sentimentAnalyze: SentimentAnalyze;
 
-const getTwittDetails = (data: FakeNewsModel): Promise<object> => {
-    return new Promise<object>(resolve => {
-        twitter.getDetailsOfTweet(data.twitterId)
-            .then(twitt => {
-                data.twitterDetails = twitt;
-                resolve(data);
-            })
-    });
-}
-
-const queue = [];
-
-tools.readFile('fakeWithTwittsTexts.json', (buffer: Buffer) => {
-    const morfeuszAnalyze = JSON.parse(new String(buffer).toString()).filter(data => data.twitterDetails).map(data => {
-        data.sentiment = sentiment.getSentimentPolish(data.twitterDetails);
-        return data;
-    });
-
-    morfeuszRequest(morfeuszAnalyze);
-});
-
-
-const morfeuszRequest = (data: Array<FakeNewsModel>) => {
-    const value = data.pop();
-    if (value) {
-        analyzeMorfeusz(value)
-            .then(result => {
-                queue.push(result);
-                console.log(`Processed: ${queue.length}, Left: ${data.length}`);
-                setTimeout(() => morfeuszRequest(data), 1000);
-            })
-    } else {
-        console.log(queue.length);
-        tools.saveToJSON(JSON.stringify(queue), 'fakeWithMorfeuszAndSentiment.json');
+    constructor() {
+        this.tools = new FileTools();
+        this.fakeHunterRequest = new FakeHunterRequest();
+        this.twitterRequest = new TwitterRequest();
+        this.morfeuszRequest = new MorfeuszRequest();
+        this.sentimentAnalyze = new SentimentAnalyze();
     }
-};
 
-const analyzeMorfeusz = (data: FakeNewsModel): Promise<FakeNewsModel> => {
-    return new Promise<FakeNewsModel>(resolve => {
-        // @ts-ignore
-        morfeusz.tagFromMorfeusz(data.twitterDetails)
-        .then(result => {
-            data.morfeuszWords = morfeusz.filterMorfeuszValues(result).map(morfeusz => morfeusz.coreValue.split(':')[0]);
-            resolve(data);
+    public readRecordsFromFakeHunterAnalyzeAndSave() {
+        this.fakeHunterRequest.downloadAllFakeHistory()
+            .then(results => {
+                console.log(`Downloaded ${results.length} records from Fake Hunter Page`);
+                const twitterFakes = results.filter(result => result.domain.includes('twitter'));
+                console.log(`Number of fakes related to Twitter: ${twitterFakes.length}`)
+                Promise.all(twitterFakes.map(twitt => this.getTwittDetails(twitt)))
+                    .then((fakeHunterDetailsArray) => {
+                        console.log('Downloaded details from Twitter');
+                        // @ts-ignore
+                        this.textAnalyze(fakeHunterDetailsArray);
+                    })
+            });
+    }
+
+    private getTwittDetails(data: FakeNewsModel): Promise<FakeNewsModel> {
+        return new Promise<FakeNewsModel>(resolve => {
+            this.twitterRequest.getDetailsOfTweet(data.twitterId)
+                .then(twitt => {
+                    data.twitterDetails = twitt;
+                    resolve(data);
+                })
         });
-    });
+    }
+
+    private textAnalyze(data: Array<FakeNewsModel>) {
+        console.log('Start text analyze');
+        // filter out data without twitter details
+        const morfeuszAnalyze = data.filter(data => data.twitterDetails).map(data => {
+            data.sentiment = this.sentimentAnalyze.getSentimentPolish(data.twitterDetails.full_text);
+            return data;
+        });
+
+        console.log('Start Morfeusz analyze');
+        this.callMorfeuszRequest(morfeuszAnalyze, []);
+    }
+
+    private callMorfeuszRequest(data: Array<FakeNewsModel>, queue: Array<FakeNewsModel>) {
+        const value = data.pop();
+        if (value) {
+            this.analyzeMorfeusz(value)
+                .then(result => {
+                    queue.push(result);
+                    console.log(`Processed: ${queue.length}, Left: ${data.length}`);
+                    setTimeout(() => this.callMorfeuszRequest(data, queue), 1000);
+                })
+        } else {
+            console.log(queue.length);
+            this.tools.saveToJSON(JSON.stringify(queue), path.join('src', 'data', 'fakeWithMorfeuszAndSentiment.json'));
+        }
+    };
+
+    private analyzeMorfeusz(data: FakeNewsModel): Promise<FakeNewsModel> {
+        return new Promise<FakeNewsModel>(resolve => {
+            this.morfeuszRequest.tagFromMorfeusz(data.twitterDetails.full_text)
+                .then(result => {
+                    data.morfeuszWords = this.morfeuszRequest.filterMorfeuszValues(result).map(morfeusz => morfeusz.coreValue.split(':')[0]);
+                    resolve(data);
+                });
+        });
+    }
+
 }
-
-// morfeusz.tagFromMorfeusz('Siema mam pewną sprawę?')
-//     .then(result => {
-//         console.log(morfeusz.filterMorfeuszValues(result));
-//     });
-
-// new TwitterRequest().getDetailsOfTweet('1326281517392420866');
