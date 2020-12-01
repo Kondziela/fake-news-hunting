@@ -9,6 +9,13 @@ export class MorfeuszRequest {
     // http://nkjp.pl/poliqarp/help/plse2.html
     private filterValueArray: Array<string> = [
         // types of vocabularies, that should be filtered out
+        'num',      // liczba
+        'numcol',   // liczba
+        'ppron12',  // ja
+        'ppron3',   // on
+        'siebie',   // siebie
+        'bedzie',   // być
+        'aglt',     //być
         'prep',     // prep
         'conj',     // spójnik współrzędny
         'comp',     // spójnik podrzędny
@@ -53,7 +60,9 @@ export class MorfeuszRequest {
                 return !morfeusz.type.split(':').some(value => this.filterValueArray.includes(value))
             })
             // filter out unimportant words
-            .filter(morfeusz => !this.filterOurWords.includes(morfeusz.coreValue));
+            .filter(morfeusz => !this.filterOurWords.includes(morfeusz.coreValue))
+            // min length
+            .filter(morfeusz => morfeusz.coreValue.length > 2);
     }
 
 }

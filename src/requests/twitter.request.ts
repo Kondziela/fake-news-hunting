@@ -5,10 +5,10 @@ import {TwitterModel} from "../models/TwitterModel";
 export class TwitterRequest {
 
     private loginDetails = {
-        consumer_key: Conf.CONSUMER_KEY,
-        consumer_secret: Conf.CONSUMER_SECRET,
-        access_token_key: Conf.ACCESS_TOKEN_KEY,
-        access_token_secret: Conf.ACCESS_TOKEN_SECRET
+        consumer_key: Conf.TWITTER_CONSUMER_KEY,
+        consumer_secret: Conf.TWITTER_CONSUMER_SECRET,
+        access_token_key: Conf.TWITTER_ACCESS_TOKEN_KEY,
+        access_token_secret: Conf.TWITTER_ACCESS_TOKEN_SECRET
     };
     private twitter: Twitter;
 
